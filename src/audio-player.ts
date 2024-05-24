@@ -10,7 +10,7 @@ import {customElement, property} from 'lit/decorators.js';
 /**
  * An example element.
  *
- * @fires count-changed - Indicates when the count changes
+ * @fires play-changed - Indicates when the count changes
  * @slot - This element has a slot
  * @csspart button - The button
  */
@@ -25,31 +25,25 @@ export class AudioPlayer extends LitElement {
     }
   `;
 
-  /**
-   * The name to say "Hello" to.
-   */
   @property()
-  name = 'World';
+  _audio = null;
 
-  /**
-   * The number of times the button has been clicked.
-   */
-  @property({type: Number})
-  count = 0;
+  override connectedCallback(): void {
+    this._audio = this.querySelector('audio');
+    console.log(this._audio);
+  }
 
   override render() {
-    return html`
-      <h1>${this.sayHello(this.name)}!</h1>
-      <button @click=${this._onClick} part="button">
-        Click Count: ${this.count}
-      </button>
-      <slot></slot>
-    `;
+    return html`<h1>Hello</h1>
+      <button @click="${this._onClick}" part="button"></button>
+      <slot></slot>`;
   }
 
   private _onClick() {
-    this.count++;
-    this.dispatchEvent(new CustomEvent('count-changed'));
+    if (this._audio) {
+      this._audio.paused = !this._audio.paused;
+      this.dispatchEvent(new CustomEvent('play-changed'));
+    }
   }
 
   /**
