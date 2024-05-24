@@ -1,0 +1,11 @@
+/node_modules/
+/lib/
+/test/
+custom-elements.json
+# top level source
+audio-player.js
+audio-player.js.map
+audio-player.d.ts
+audio-player.d.ts.map
+# only generated for size check
+audio-player.bundled.js
