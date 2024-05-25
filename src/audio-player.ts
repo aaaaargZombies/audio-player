@@ -26,6 +26,7 @@ export class AudioPlayer extends LitElement {
   private _audio: HTMLAudioElement | null = null;
 
   private _analyser: AnalyserNode | null = null;
+  private _gain: GainNode | null = null;
 
   @query('canvas')
   private _canvas: HTMLCanvasElement | null;
@@ -69,6 +70,17 @@ export class AudioPlayer extends LitElement {
       <button @click="${this._onClick}" part="button">
         ${this._paused ? html`play` : html`pause`}
       </button>
+      <label for="volume">Volume</label>
+      <input
+        @input="${this._onVolChange}"
+        type="range"
+        id="volume"
+        name="volume"
+        min="-50"
+        max="50"
+        value="0"
+        step="1"
+      />
       <canvas width="900" height="300"></canvas>`;
 
     return html`
@@ -79,15 +91,19 @@ export class AudioPlayer extends LitElement {
 
   private _setupAudio() {
     this._audio.controls = false;
-    let audioCtx = new window.AudioContext();
+    const audioCtx = new window.AudioContext();
     this._analyser = audioCtx.createAnalyser();
+    const gainNode = audioCtx.createGain();
+    this._gain = gainNode;
     this._analyser.minDecibels = -90;
     this._analyser.maxDecibels = -10;
     this._analyser.smoothingTimeConstant = 0.85;
 
     let source = audioCtx.createMediaElementSource(this._audio);
     source.connect(this._analyser);
+    source.connect(this._gain);
     source.connect(audioCtx.destination);
+    this._gain.connect(audioCtx.destination);
 
     this._analyser.fftSize = 256;
     this._wave = new Uint8Array(this._analyser.frequencyBinCount);
@@ -136,6 +152,12 @@ export class AudioPlayer extends LitElement {
       this._paused = !this._paused;
       this.dispatchEvent(new CustomEvent('play-changed'));
       this.requestUpdate();
+    }
+  }
+
+  private _onVolChange(e) {
+    if (this._gain) {
+      this._gain.gain.value = e.target.value;
     }
   }
 }
