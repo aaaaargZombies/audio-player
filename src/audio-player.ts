@@ -34,6 +34,8 @@ export class AudioPlayer extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
+    // this feels out of sync with how Lit wants to work
+    // but it needs to happen before render or we don't know if we have an audio element to render controls for
     this._audio = this.querySelector('audio');
     if (this._audio) {
       this._audio.controls = false;
@@ -54,9 +56,9 @@ export class AudioPlayer extends LitElement {
   }
 
   override firstUpdated() {
-    console.log('updated');
-    console.log(this._canvas);
-    let canvasCtx = this._canvas.getContext('2d'); // this._canvas is null because this.connectedCallback is not shadowDom rendered
+    // runs once after render
+    console.log('FIRST UPDATED');
+    const canvasCtx = this._canvas.getContext('2d');
     if (canvasCtx) {
       const draw = () => {
         this._analyser.getByteTimeDomainData(this._wave);
