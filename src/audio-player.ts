@@ -17,6 +17,10 @@ export class AudioPlayer extends LitElement {
       padding: 16px;
       max-width: 800px;
     }
+
+    :host canvas {
+      width: 100%;
+    }
   `;
 
   private _audio: HTMLAudioElement | null = null;
