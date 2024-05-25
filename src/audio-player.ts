@@ -76,10 +76,10 @@ export class AudioPlayer extends LitElement {
         type="range"
         id="volume"
         name="volume"
-        min="-50"
-        max="50"
-        value="0"
-        step="1"
+        min="-1"
+        max="1"
+        value="1"
+        step="0.01"
       />
       <canvas width="900" height="300"></canvas>`;
 
