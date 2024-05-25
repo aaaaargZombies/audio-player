@@ -81,6 +81,17 @@ export class AudioPlayer extends LitElement {
         value="1"
         step="0.01"
       />
+      <label for="postion">Postion</label>
+      <input
+        @input="${this._onPosChange}"
+        type="range"
+        id="postion"
+        name="position"
+        min="0"
+        max="${this._audio?.duration}"
+        value="0"
+        step="1"
+      />
       <canvas width="900" height="300"></canvas>`;
 
     return html`
@@ -158,6 +169,12 @@ export class AudioPlayer extends LitElement {
   private _onVolChange(e) {
     if (this._gain) {
       this._gain.gain.value = e.target.value;
+    }
+  }
+
+  private _onPosChange(e) {
+    if (this._audio) {
+      this._audio.currentTime = e.target.value;
     }
   }
 }
