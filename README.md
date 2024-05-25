@@ -1,4 +1,4 @@
-# LitElement TypeScript starter
+# WIP `audio-player` web-component
 
 This project includes a sample component using LitElement with TypeScript.
 
