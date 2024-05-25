@@ -64,37 +64,12 @@ export class AudioPlayer extends LitElement {
     console.log('FIRST UPDATED');
     const canvasCtx = this._canvas.getContext('2d');
     if (canvasCtx) {
-      const draw = () => {
-        this._analyser.getByteTimeDomainData(this._wave);
-        requestAnimationFrame(draw);
-        const height = this._canvas.height;
-        const width = this._canvas.width;
-        const bufferLength = this._analyser.frequencyBinCount;
-        canvasCtx.fillStyle = 'rgb(200 200 200)';
-        canvasCtx.fillRect(0, 0, width, height);
-        canvasCtx.lineWidth = 2;
-        canvasCtx.strokeStyle = 'rgb(0 0 0)';
-        canvasCtx.beginPath();
-        const sliceWidth = width / bufferLength;
-        let x = 0;
-        for (let i = 0; i < bufferLength; i++) {
-          const v = this._wave[i] / 128.0;
-          const y = v * (height / 2);
+      const height = this._canvas.height;
+      const width = this._canvas.width;
+      const bufferLength = this._analyser.frequencyBinCount;
 
-          if (i === 0) {
-            canvasCtx.moveTo(x, y);
-          } else {
-            canvasCtx.lineTo(x, y);
-          }
-
-          x += sliceWidth;
-        }
-        canvasCtx.lineTo(width, height / 2);
-        canvasCtx.stroke();
-      };
-
-      canvasCtx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-      draw();
+      canvasCtx.clearRect(0, 0, width, height);
+      this._draw(canvasCtx, width, height, bufferLength);
     }
   }
 
@@ -113,6 +88,39 @@ export class AudioPlayer extends LitElement {
       ${this._audio ? audioControls : missingAudioMsg}
       <slot></slot>
     `;
+  }
+
+  private _draw(
+    canvasCtx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    bufferLength: number
+  ) {
+    this._analyser.getByteTimeDomainData(this._wave);
+    requestAnimationFrame(() => {
+      this._draw(canvasCtx, width, height, bufferLength);
+    });
+    canvasCtx.fillStyle = 'rgb(200 200 200)';
+    canvasCtx.fillRect(0, 0, width, height);
+    canvasCtx.lineWidth = 2;
+    canvasCtx.strokeStyle = 'rgb(0 0 0)';
+    canvasCtx.beginPath();
+    const sliceWidth = width / bufferLength;
+    let x = 0;
+    for (let i = 0; i < bufferLength; i++) {
+      const v = this._wave[i] / 128.0;
+      const y = v * (height / 2);
+
+      if (i === 0) {
+        canvasCtx.moveTo(x, y);
+      } else {
+        canvasCtx.lineTo(x, y);
+      }
+
+      x += sliceWidth;
+    }
+    canvasCtx.lineTo(width, height / 2);
+    canvasCtx.stroke();
   }
 
   private _onClick() {
