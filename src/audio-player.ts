@@ -42,20 +42,7 @@ export class AudioPlayer extends LitElement {
     // but it needs to happen before render or we don't know if we have an audio element to render controls for
     this._audio = this.querySelector('audio');
     if (this._audio) {
-      this._audio.controls = false;
-      let audioCtx = new window.AudioContext();
-      this._analyser = audioCtx.createAnalyser();
-      this._analyser.minDecibels = -90;
-      this._analyser.maxDecibels = -10;
-      this._analyser.smoothingTimeConstant = 0.85;
-
-      let source = audioCtx.createMediaElementSource(this._audio);
-      source.connect(this._analyser);
-      source.connect(audioCtx.destination);
-
-      this._analyser.fftSize = 256;
-      let bufferLength = this._analyser.frequencyBinCount;
-      this._wave = new Uint8Array(bufferLength);
+      this._setupAudio();
     }
   }
 
@@ -82,12 +69,28 @@ export class AudioPlayer extends LitElement {
       <button @click="${this._onClick}" part="button">
         ${this._paused ? html`play` : html`pause`}
       </button>
-      <canvas width="300" height="100"></canvas>`;
+      <canvas width="900" height="300"></canvas>`;
 
     return html`
       ${this._audio ? audioControls : missingAudioMsg}
       <slot></slot>
     `;
+  }
+
+  private _setupAudio() {
+    this._audio.controls = false;
+    let audioCtx = new window.AudioContext();
+    this._analyser = audioCtx.createAnalyser();
+    this._analyser.minDecibels = -90;
+    this._analyser.maxDecibels = -10;
+    this._analyser.smoothingTimeConstant = 0.85;
+
+    let source = audioCtx.createMediaElementSource(this._audio);
+    source.connect(this._analyser);
+    source.connect(audioCtx.destination);
+
+    this._analyser.fftSize = 256;
+    this._wave = new Uint8Array(this._analyser.frequencyBinCount);
   }
 
   private _draw(
@@ -102,7 +105,7 @@ export class AudioPlayer extends LitElement {
     });
     canvasCtx.fillStyle = 'rgb(200 200 200)';
     canvasCtx.fillRect(0, 0, width, height);
-    canvasCtx.lineWidth = 2;
+    canvasCtx.lineWidth = 3;
     canvasCtx.strokeStyle = 'rgb(0 0 0)';
     canvasCtx.beginPath();
     const sliceWidth = width / bufferLength;
