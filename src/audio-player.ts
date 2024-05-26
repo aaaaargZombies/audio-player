@@ -192,13 +192,8 @@ export class AudioPlayer extends LitElement {
 
   private _onPosChange(e) {
     if (this._audio) {
-      // two issues here
-      // 1 - setting currentTime in chrome always resets playback position to 0 an old post
-      // on stack overflow from 2012 suggests it's a server issues should probably try to
-      // find a different mp3 src to test with.
-      //
       // 2 - in chrome and firefox the thumb position of the range input stops tracking the value aftr input
-      this._audio.currentTime = e.target.value;
+      this._audio.currentTime = `${e.target.value}`; // must be string for chrome
     }
   }
 }
