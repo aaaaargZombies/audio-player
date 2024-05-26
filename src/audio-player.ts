@@ -151,6 +151,9 @@ export class AudioPlayer extends LitElement {
       this._draw(canvasCtx, width, height, bufferLength);
     });
     this._pos = this._audio.currentTime;
+    if (this._posControl) {
+      this._posControl.value = `${this._pos}`;
+    }
     canvasCtx.fillStyle = 'rgb(200 200 200)';
     canvasCtx.fillRect(0, 0, width, height);
     canvasCtx.lineWidth = 3;
