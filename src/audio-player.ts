@@ -21,15 +21,25 @@ export class AudioPlayer extends LitElement {
     :host canvas {
       width: 100%;
     }
+
+    :host #position {
+      width: 100%;
+    }
   `;
 
   private _audio: HTMLAudioElement | null = null;
-
+  private _audioCtx: AudioContext | null = null;
   private _analyser: AnalyserNode | null = null;
   private _gain: GainNode | null = null;
 
   @query('canvas')
   private _canvas: HTMLCanvasElement | null;
+
+  @query('#position')
+  private _posControl: HTMLInputElement | null;
+
+  @state()
+  private _pos: number = 0;
 
   @state()
   private _paused: boolean = true;
@@ -81,17 +91,19 @@ export class AudioPlayer extends LitElement {
         value="1"
         step="0.01"
       />
-      <label for="postion">Postion</label>
+      <label for="position">Position</label>
       <input
         @input="${this._onPosChange}"
         type="range"
-        id="postion"
+        id="position"
         name="position"
         min="0"
         max="${this._audio?.duration}"
-        value="0"
+        value="${this._pos}"
         step="1"
       />
+      <p>Playback position: <span>${this._pos}</span></p>
+
       <canvas width="900" height="300"></canvas>`;
 
     return html`
@@ -102,19 +114,19 @@ export class AudioPlayer extends LitElement {
 
   private _setupAudio() {
     this._audio.controls = false;
-    const audioCtx = new window.AudioContext();
-    this._analyser = audioCtx.createAnalyser();
-    const gainNode = audioCtx.createGain();
+    this._audioCtx = new window.AudioContext();
+    this._analyser = this._audioCtx.createAnalyser();
+    const gainNode = this._audioCtx.createGain();
     this._gain = gainNode;
     this._analyser.minDecibels = -90;
     this._analyser.maxDecibels = -10;
     this._analyser.smoothingTimeConstant = 0.85;
 
-    let source = audioCtx.createMediaElementSource(this._audio);
+    let source = this._audioCtx.createMediaElementSource(this._audio);
     source.connect(this._analyser);
     source.connect(this._gain);
-    source.connect(audioCtx.destination);
-    this._gain.connect(audioCtx.destination);
+    source.connect(this._audioCtx.destination);
+    this._gain.connect(this._audioCtx.destination);
 
     this._analyser.fftSize = 256;
     this._wave = new Uint8Array(this._analyser.frequencyBinCount);
@@ -130,6 +142,7 @@ export class AudioPlayer extends LitElement {
     requestAnimationFrame(() => {
       this._draw(canvasCtx, width, height, bufferLength);
     });
+    this._pos = this._audio.currentTime;
     canvasCtx.fillStyle = 'rgb(200 200 200)';
     canvasCtx.fillRect(0, 0, width, height);
     canvasCtx.lineWidth = 3;
@@ -155,6 +168,9 @@ export class AudioPlayer extends LitElement {
 
   private _onClick() {
     if (this._audio) {
+      if (this._pos === 0) {
+        this._audioCtx?.resume(); // chrome requires this human interaction but you only need it once
+      }
       if (this._audio.paused) {
         this._audio.play();
       } else {
@@ -162,7 +178,6 @@ export class AudioPlayer extends LitElement {
       }
       this._paused = !this._paused;
       this.dispatchEvent(new CustomEvent('play-changed'));
-      this.requestUpdate();
     }
   }
 
@@ -174,6 +189,12 @@ export class AudioPlayer extends LitElement {
 
   private _onPosChange(e) {
     if (this._audio) {
+      // two issues here
+      // 1 - setting currentTime in chrome always resets playback position to 0 an old post
+      // on stack overflow from 2012 suggests it's a server issues should probably try to
+      // find a different mp3 src to test with.
+      //
+      // 2 - in chrome and firefox the thumb position of the range input stops tracking the value aftr input
       this._audio.currentTime = e.target.value;
     }
   }
