@@ -1,5 +1,15 @@
 # WIP `audio-player` web-component
 
+This is at the sketching stage, I'm just popping things on the screen and poking stuff in the code to see what it feels like. A few things I'm interested in exploring in this project.
+
+- Web-components and Lit
+- Accessibility and progressive enhancement
+- Visualising audio data using Canvas or SVG
+
+I've left starter readme below as it's useful for orientation if I put it down and want to pick it up later.
+
+---
+
 This project includes a sample component using LitElement with TypeScript.
 
 This template is generated from the `lit-starter-ts` package in [the main Lit
