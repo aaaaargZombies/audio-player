@@ -135,6 +135,11 @@ export class AudioPlayer extends LitElement {
   // might be better to generate a single wave form rather than a live one?
   // https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer/getChannelData
   // https://github.com/katspaugh/wavesurfer.js/blob/main/src/renderer.ts
+  //
+  // It looks like I might have to manually create an AudioBuffer via a fetch
+  // request (audioEl.src) then turn that into the source for an audioNode ??
+  // seems a bit round about I'd hoped there'd be a way to get it from the existing
+  // audioNode associated with the HTMLAudioElement
   private _draw(
     canvasCtx: CanvasRenderingContext2D,
     width: number,
