@@ -132,6 +132,9 @@ export class AudioPlayer extends LitElement {
     this._wave = new Uint8Array(this._analyser.frequencyBinCount);
   }
 
+  // might be better to generate a single wave form rather than a live one?
+  // https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer/getChannelData
+  // https://github.com/katspaugh/wavesurfer.js/blob/main/src/renderer.ts
   private _draw(
     canvasCtx: CanvasRenderingContext2D,
     width: number,
