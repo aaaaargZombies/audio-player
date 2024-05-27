@@ -53,6 +53,9 @@ export class AudioPlayer extends LitElement {
   @state()
   private _wave: Uint8Array = new Uint8Array();
 
+  @state()
+  private _audioBuffer: RemoteData = {kind: 'NotAsked'};
+
   override connectedCallback(): void {
     super.connectedCallback();
     // this feels out of sync with how Lit wants to work
@@ -112,7 +115,21 @@ export class AudioPlayer extends LitElement {
 
       <canvas width="900" height="300"></canvas>`;
 
+    const remoteDataSwitch = (rd: RemoteData): string => {
+      switch (rd.kind) {
+        case 'Loading':
+          return `LOADING STATE`;
+        case 'NotAsked':
+          return `NOT_ASKED STATE`;
+        case 'Success':
+          return `SUCCESS STATE`;
+        case 'Failure':
+          return `FAILURE STATE`;
+      }
+    };
+
     return html`
+      ${remoteDataSwitch(this._audioBuffer)}
       ${this._audio ? audioControls : missingAudioMsg}
       <slot></slot>
     `;
