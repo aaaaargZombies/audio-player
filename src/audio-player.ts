@@ -1,6 +1,12 @@
 import {LitElement, html, css} from 'lit';
 import {customElement, property, query, state} from 'lit/decorators.js';
 
+type RemoteData =
+  | {kind: 'NotAsked'}
+  | {kind: 'Loading'}
+  | {kind: 'Failure'; error: string}
+  | {kind: 'Success'; result: AudioBuffer};
+
 /**
  * audio-player element.
  *
