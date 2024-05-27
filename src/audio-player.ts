@@ -63,6 +63,33 @@ export class AudioPlayer extends LitElement {
     this._audio = this.querySelector('audio');
     if (this._audio) {
       this._setupAudio();
+      if (this._audio.src) {
+        this._audioBuffer = {kind: 'Loading'};
+        fetch(this._audio.src)
+          .then((res) => {
+            if (res.ok) {
+              return res.arrayBuffer();
+            } else {
+              throw new Error("Can't load audio.");
+            }
+          })
+          .then((buf) => {
+            if (this._audioCtx) {
+              this._audioCtx
+                .decodeAudioData(buf)
+                .then((audBuf) => {
+                  this._audioBuffer = {kind: 'Success', result: audBuf};
+                })
+                .catch((e) => {
+                  this._audioBuffer = {kind: 'Failure', error: e.message};
+                });
+            }
+          })
+          .catch((e) => {
+            console.log('borked');
+            this._audioBuffer = {kind: 'Failure', error: e.message};
+          });
+      }
     }
   }
 
