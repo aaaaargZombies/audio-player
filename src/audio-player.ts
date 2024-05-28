@@ -142,16 +142,19 @@ export class AudioPlayer extends LitElement {
 
       <canvas width="900" height="300"></canvas>`;
 
-    const remoteDataSwitch = (rd: RemoteData): string => {
+    const remoteDataSwitch = (rd: RemoteData) => {
       switch (rd.kind) {
         case 'Loading':
-          return `LOADING STATE`;
+          return html`<p>LOADING STATE</p>`;
         case 'NotAsked':
-          return `NOT_ASKED STATE`;
+          return html`<p>NOT_ASKED STATE</p>`;
         case 'Success':
-          return `SUCCESS STATE`;
+          return html`<p>SUCCESS STATE</p>
+            <p>
+              <code>${rd.result.getChannelData(0).length}</code>
+            </p>`;
         case 'Failure':
-          return `FAILURE STATE`;
+          return html`<p>FAILURE STATE</p>`;
       }
     };
 
