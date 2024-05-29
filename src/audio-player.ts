@@ -18,6 +18,7 @@ type RemoteData =
 export class AudioPlayer extends LitElement {
   static override styles = css`
     :host {
+      box-sizing: border-box;
       display: block;
       border: solid 1px gray;
       padding: 16px;
@@ -30,6 +31,20 @@ export class AudioPlayer extends LitElement {
 
     :host #position {
       width: 100%;
+    }
+
+    :host .track {
+      width: 100%;
+      display: flex;
+      height: 100px;
+      gap: 1px;
+      align-items: end;
+    }
+
+    :host .track div {
+      flex-grow: 100;
+      background-color: fuchsia;
+      content: '';
     }
   `;
 
@@ -208,10 +223,13 @@ export class AudioPlayer extends LitElement {
         <code>(min: ${Math.min(...heights)}</code>,
         <code> max: ${Math.max(...heights)})</code>
       </p>
-      <p>
-        <code>(min: ${quantize(Math.min(...heights))}</code>,
-        <code> max: ${quantize(Math.max(...heights))})</code>
-      </p>`;
+      <div class="track">
+        ${heights.map(
+          (x) => html`
+            <div style="height:${Math.round(quantize(x))}px;"></div>
+          `
+        )}
+      </div>`;
   }
 
   private _setupAudio() {
