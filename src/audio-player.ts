@@ -149,10 +149,7 @@ export class AudioPlayer extends LitElement {
         case 'NotAsked':
           return html`<p>NOT_ASKED STATE</p>`;
         case 'Success':
-          return html`<p>SUCCESS STATE</p>
-            <p>
-              <code>${rd.result.getChannelData(0).length}</code>
-            </p>`;
+          return this._drawTrack(rd.result);
         case 'Failure':
           return html`<p>FAILURE STATE</p>`;
       }
@@ -163,6 +160,35 @@ export class AudioPlayer extends LitElement {
       ${this._audio ? audioControls : missingAudioMsg}
       <slot></slot>
     `;
+  }
+
+  private _drawTrack(ab: AudioBuffer) {
+    const cData = ab.getChannelData(0);
+    const nBars = 200;
+    const chunkSize = Math.floor(cData.length / nBars);
+    const heights = cData
+      .reduce(
+        (acc, cv) => {
+          const currentChunk = acc[acc.length - 1];
+          const val = Math.abs(cv);
+          if (currentChunk.length < chunkSize) {
+            currentChunk.push(val);
+            return acc;
+          } else {
+            acc.push([val]);
+            return acc;
+          }
+        },
+        [[0]]
+      )
+      .map((xs) => xs.reduce((a, b) => a + b) / xs.length);
+    const bars = [0];
+    return html`<p>SUCCESS STATE</p>
+      <p>I probably want to quantize these values somehow</p>
+      <p>
+        <code>(min: ${Math.min(...heights)}</code>,
+        <code> max: ${Math.max(...heights)})</code>
+      </p>`;
   }
 
   private _setupAudio() {
