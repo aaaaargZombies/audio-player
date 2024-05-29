@@ -182,12 +182,35 @@ export class AudioPlayer extends LitElement {
         [[0]]
       )
       .map((xs) => xs.reduce((a, b) => a + b) / xs.length);
-    const bars = [0];
+    const quantizer = (
+      minIn: number,
+      maxIn: number,
+      minOut: number,
+      maxOut: number
+    ) => {
+      const inDiff = maxIn - minIn;
+      const outDiff = maxOut - minOut;
+      const unit = outDiff / inDiff;
+      return (valFrom: number): number => {
+        return minOut + unit * valFrom;
+      };
+    };
+    const maxHeight = 100;
+    const quantize = quantizer(
+      Math.min(...heights),
+      Math.max(...heights),
+      0,
+      maxHeight
+    );
     return html`<p>SUCCESS STATE</p>
       <p>I probably want to quantize these values somehow</p>
       <p>
         <code>(min: ${Math.min(...heights)}</code>,
         <code> max: ${Math.max(...heights)})</code>
+      </p>
+      <p>
+        <code>(min: ${quantize(Math.min(...heights))}</code>,
+        <code> max: ${quantize(Math.max(...heights))})</code>
       </p>`;
   }
 
