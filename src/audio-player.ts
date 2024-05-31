@@ -1,4 +1,5 @@
 import {LitElement, html, css} from 'lit';
+import {guard} from 'lit/directives/guard.js';
 import {customElement, property, query, state} from 'lit/decorators.js';
 
 type RemoteData =
@@ -164,7 +165,8 @@ export class AudioPlayer extends LitElement {
         case 'NotAsked':
           return html`<p>NOT_ASKED STATE</p>`;
         case 'Success':
-          return this._drawTrack(rd.result);
+          // blocks re-render of template function until this._audioBuffer has changed
+          return guard([this._audioBuffer], () => this._drawTrack(rd.result));
         case 'Failure':
           return html`<p>FAILURE STATE</p>`;
       }
@@ -178,9 +180,6 @@ export class AudioPlayer extends LitElement {
   }
 
   private _drawTrack(ab: AudioBuffer) {
-    // this function is re-rendering every 250ms when the track plays
-    // which is making the other reactive functions very choppy
-    console.log(Date.now());
     const cData = ab.getChannelData(0);
     const nBars = 200;
     const chunkSize = Math.floor(cData.length / nBars);
