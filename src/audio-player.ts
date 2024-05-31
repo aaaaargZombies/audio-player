@@ -178,6 +178,9 @@ export class AudioPlayer extends LitElement {
   }
 
   private _drawTrack(ab: AudioBuffer) {
+    // this function is re-rendering every 250ms when the track plays
+    // which is making the other reactive functions very choppy
+    console.log(Date.now());
     const cData = ab.getChannelData(0);
     const nBars = 200;
     const chunkSize = Math.floor(cData.length / nBars);
