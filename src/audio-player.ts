@@ -39,7 +39,7 @@ export class AudioPlayer extends LitElement {
       display: flex;
       height: 100px;
       gap: 1px;
-      align-items: end;
+      align-items: center;
     }
 
     :host .track div {
