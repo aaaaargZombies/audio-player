@@ -272,7 +272,7 @@ export class AudioPlayer extends LitElement {
     requestAnimationFrame(() => {
       this._draw(canvasCtx, width, height, bufferLength);
     });
-    this._pos = this._audio.currentTime;
+    this._pos = Math.floor(this._audio.currentTime);
     if (this._posControl) {
       this._posControl.value = `${this._pos}`;
     }
