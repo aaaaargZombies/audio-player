@@ -111,8 +111,6 @@ export class AudioPlayer extends LitElement {
 
   override firstUpdated() {
     // runs once after render
-    // but if I don't show audio controls until I've got the full track downloaded then there is no canvas
-    // and I call the draw function with a bunch of null inputs
     console.log('FIRST UPDATED');
     const canvasCtx = this._canvas.getContext('2d');
     if (canvasCtx) {
@@ -125,27 +123,58 @@ export class AudioPlayer extends LitElement {
     }
   }
 
-  private _remoteDataSwitch = (rd: RemoteData) => {
-    switch (rd.kind) {
-      case 'Loading':
-        return html`<p>LOADING STATE</p>`;
-      case 'NotAsked':
-        return html`<p>No track supplied</p>`;
-      case 'Success':
-        // blocks re-render of template function until this._audioBuffer has changed
-        return html`${guard([this._audioBuffer], () =>
-          this._drawTrack(rd.result)
-        )}
-        ${this._audioControls()}`;
-      case 'Failure':
-        return html`<p>Unable to load track</p>`;
-    }
-  };
-
   override render() {
-    console.log(this);
+    const missingAudioMsg = html`<div>
+      <p>oops - we can't find the track you were looking for</p>
+    </div>`;
+
+    const audioControls = html`<h1><code>audio-player</code></h1>
+      <button @click="${this._onClick}" part="button">
+        ${this._paused ? html`play` : html`pause`}
+      </button>
+      <label for="volume">Volume</label>
+      <input
+        @input="${this._onVolChange}"
+        type="range"
+        id="volume"
+        name="volume"
+        min="-1"
+        max="1"
+        value="1"
+        step="0.01"
+      />
+      <label for="position">Position</label>
+      <input
+        @input="${this._onPosChange}"
+        type="range"
+        id="position"
+        name="position"
+        min="0"
+        max="${this._audio?.duration}"
+        value="${this._pos}"
+        step="1"
+      />
+      <p>Playback position: <span>${this._pos}</span></p>
+
+      <canvas width="900" height="300"></canvas>`;
+
+    const remoteDataSwitch = (rd: RemoteData) => {
+      switch (rd.kind) {
+        case 'Loading':
+          return html`<p>LOADING STATE</p>`;
+        case 'NotAsked':
+          return html`<p>NOT_ASKED STATE</p>`;
+        case 'Success':
+          // blocks re-render of template function until this._audioBuffer has changed
+          return guard([this._audioBuffer], () => this._drawTrack(rd.result));
+        case 'Failure':
+          return html`<p>FAILURE STATE</p>`;
+      }
+    };
+
     return html`
-      ${this._remoteDataSwitch(this._audioBuffer)}
+      ${remoteDataSwitch(this._audioBuffer)}
+      ${this._audio ? audioControls : missingAudioMsg}
       <slot></slot>
     `;
   }
@@ -203,41 +232,6 @@ export class AudioPlayer extends LitElement {
           `
         )}
       </div>`;
-  }
-
-  private _audioControls() {
-    console.log('AUDIO_CTRL');
-
-    console.log(this);
-    return html`<h1><code>audio-player</code></h1>
-      <button @click="${this._onClick}" part="button">
-        ${this._paused ? html`play` : html`pause`}
-      </button>
-      <label for="volume">Volume</label>
-      <input
-        @input="${this._onVolChange}"
-        type="range"
-        id="volume"
-        name="volume"
-        min="-1"
-        max="1"
-        value="1"
-        step="0.01"
-      />
-      <label for="position">Position</label>
-      <input
-        @input="${this._onPosChange}"
-        type="range"
-        id="position"
-        name="position"
-        min="0"
-        max="${this._audio?.duration}"
-        value="${this._pos}"
-        step="1"
-      />
-      <p>Playback position: <span>${this._pos}</span></p>
-
-      <canvas width="900" height="300"></canvas>`;
   }
 
   private _setupAudio() {
